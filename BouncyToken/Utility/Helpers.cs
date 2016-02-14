@@ -2,9 +2,9 @@
 
 namespace BouncyToken.Utility
 {
-	public class Utility
+	public class Helpers
 	{
-		static string Base64UrlEncode(byte[] input)
+		public static string Base64UrlEncode(byte[] input)
 		{
 			string result = Convert.ToBase64String(input);
 
@@ -15,7 +15,7 @@ namespace BouncyToken.Utility
 			return result;
 		}
 
-		static byte[] Base64UrlDecode(string input)
+		public static byte[] Base64UrlDecode(string input)
 		{
 			input.Replace('-', '+');
 			input.Replace('_', '/');
