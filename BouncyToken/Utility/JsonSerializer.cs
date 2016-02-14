@@ -2,7 +2,7 @@
 
 namespace BouncyToken.Utility
 {
-	public class JsonSerializer
+	public class JsonSerializer : IJsonSerializer
 	{
 		JavaScriptSerializer serializer = new JavaScriptSerializer();
 
