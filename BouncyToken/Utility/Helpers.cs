@@ -17,8 +17,8 @@ namespace BouncyToken.Utility
 
 		public static byte[] Base64UrlDecode(string input)
 		{
-			input.Replace('-', '+');
-			input.Replace('_', '/');
+			input = input.Replace('-', '+');
+			input = input.Replace('_', '/');
 
 			switch (input.Length % 4)
 			{
@@ -33,7 +33,7 @@ namespace BouncyToken.Utility
 				default:
 					throw new Exception("Invalid base64 string");
 			}
-
+			Console.WriteLine(input);
 			return Convert.FromBase64String(input);
 		}
 

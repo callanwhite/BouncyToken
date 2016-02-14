@@ -38,7 +38,12 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Jwt\EJwtAlgorithm.cs" />
     <Compile Include="JsonWebToken.cs" />
+    <Compile Include="Jwt\HmacSha.cs" />
+    <Compile Include="Jwt\IJwtAlgorithm.cs" />
+    <Compile Include="Jwt\JwtKey.cs" />
+    <Compile Include="Jwt\RsaSha.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\IJsonSerializer.cs" />
     <Compile Include="Utility\JsonSerializer.cs" />

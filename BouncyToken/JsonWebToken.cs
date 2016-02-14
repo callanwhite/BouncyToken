@@ -11,7 +11,14 @@ namespace BouncyToken
 	{
 		public static IJsonSerializer JsonSerializer = new JsonSerializer();
 
-		public static string Decode(string token, byte[] key, bool verify = true)
+		static Dictionary<EJwtAlgorithm, IJwtAlgorithm> hashAlgorithms = new Dictionary<EJwtAlgorithm, IJwtAlgorithm>
+		{
+			{ EJwtAlgorithm.HS256, new HmacSha(EJwtAlgorithm.HS256) },
+			{ EJwtAlgorithm.HS384, new HmacSha(EJwtAlgorithm.HS384) },
+			{ EJwtAlgorithm.HS512, new HmacSha(EJwtAlgorithm.HS512) },
+		};
+
+		public static string Decode(string token, JwtKey key, bool verify = true)
 		{
 			string[] tokenParts = token.Split('.');
 			if (tokenParts.Length != 3)
@@ -21,14 +28,29 @@ namespace BouncyToken
 
 			string header = Encoding.UTF8.GetString(Helpers.Base64UrlDecode(tokenParts[0]));
 			string payload = Encoding.UTF8.GetString(Helpers.Base64UrlDecode(tokenParts[1]));
-			string signature = tokenParts[2];
+			Console.WriteLine(header + "::");
+			Console.WriteLine(payload + "::");
+			if (verify)
+			{
+				Dictionary<string, object> headerJson = JsonSerializer.Deserialize<Dictionary<string, object>>(header);	
+				EJwtAlgorithm algorithm = (EJwtAlgorithm)Enum.Parse(typeof(EJwtAlgorithm), headerJson["alg"] as string);
+				Console.WriteLine(tokenParts[2]);
+				byte[] signature = Helpers.Base64UrlDecode(tokenParts[2]);
+				Console.WriteLine("Sig:" + tokenParts[2]);
+				byte[] toVerify = Encoding.UTF8.GetBytes(tokenParts[0] + "." + tokenParts[1]);
 
-			return null;
+				bool valid = hashAlgorithms[algorithm].Verify(signature, toVerify, key);
+				Console.WriteLine(valid);
+			}
+
+
+			return payload;
 		}
 
-		public static string Decode(string token, string key, bool verify = true)
+		public static T Decode<T>(string token, JwtKey key, bool verify = true)
 		{
-			return Decode(token, Encoding.UTF8.GetBytes(key), verify);
+			string payloadJson = Decode(token, key, verify);
+			return JsonSerializer.Deserialize<T>(payloadJson);
 		}
 
 		public static bool Verify(string token)
@@ -36,30 +58,23 @@ namespace BouncyToken
 			return true;
 		}
 
-		public static string Encode(object payload, byte[] key, string secret, IDictionary<string, object> extraHeaders = null)
+		public static string Encode(object payload, JwtKey key, EJwtAlgorithm algorithm = EJwtAlgorithm.HS256, string secret = null, IDictionary<string, object> extraHeaders = null)
 		{
-			string[] parts = new string[3];
+			string[] tokenParts = new string[3];
 			Dictionary<string, object> header = extraHeaders == null ? new Dictionary<string, object>() : new Dictionary<string, object>(extraHeaders);
 			header.Add("typ", "JWT");
 			header.Add("alg", "HS256");
 
-			parts[0] = Helpers.Base64UrlEncode(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(header)));
-			parts[1] = Helpers.Base64UrlEncode(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload)));
+			tokenParts[0] = Helpers.Base64UrlEncode(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(header)));
+			tokenParts[1] = Helpers.Base64UrlEncode(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload)));
 
-			Console.WriteLine("Header: " + parts[0]);
-			Console.WriteLine("Payload: " + parts[1]);
+			Console.WriteLine("Header: " + tokenParts[0]);
+			Console.WriteLine("Payload: " + tokenParts[1]);
 
-			Org.BouncyCastle.Crypto.Parameters.KeyParameter kp = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key);
-			IMac mac = MacUtilities.GetMac("HmacSHA256");
-			mac.Init(kp);
-			mac.Reset();
-			var b = Encoding.UTF8.GetBytes(parts[0] + "." + parts[1]);
-			mac.BlockUpdate(b, 0, b.Length);
-			var ob = new byte[mac.GetMacSize()];
-			mac.DoFinal(ob, 0);
-			parts[2] = Helpers.Base64UrlEncode(ob);
+			byte[] bytesToSign = Encoding.UTF8.GetBytes(tokenParts[0] + "." + tokenParts[1]);
+			tokenParts[2] = hashAlgorithms[algorithm].Sign(bytesToSign, key);
 
-			return string.Join(".", parts);
+			return string.Join(".", tokenParts);
 		}
 	}
 }

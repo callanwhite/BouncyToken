@@ -14,8 +14,11 @@ namespace BouncyTokenTest
 		static void Main(string[] args)
 		{
 			Console.WriteLine("BouncyTest");
-			string token = JsonWebToken.Encode(testData, System.Text.Encoding.UTF8.GetBytes("supersecret"), "pass");
+
+			JwtKey key = JwtKey.LoadSymmetricKey(System.Text.Encoding.UTF8.GetBytes("supersecret"));
+			string token = JsonWebToken.Encode(testData, key);
 			Console.WriteLine(token);
+			JsonWebToken.Decode(token, key, true);
 			Console.ReadLine();
 		}
 	}
