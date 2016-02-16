@@ -42,10 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Keys\letmein.pem">
+    <None Include="Keys\letmein.ppk">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Keys\letmein.ppk">
+    <None Include="Keys\letmein.priv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Keys\letmein.pub">

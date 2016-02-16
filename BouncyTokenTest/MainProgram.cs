@@ -18,7 +18,7 @@ namespace BouncyTokenTest
 			Console.WriteLine(System.IO.File.Exists("Keys/letmein.pem"));
 
 			JwtKey key = JwtKey.LoadSymmetricKey(System.Text.Encoding.UTF8.GetBytes("supersecret"));
-			JwtKey letmeinPrivate = JwtKey.LoadAsymmetricKeyPrivate("Keys/letmein.pem", "letmein");
+			JwtKey letmeinPrivate = JwtKey.LoadAsymmetricKeyPrivate("Keys/letmein.priv", "letmein");
 			JwtKey letmeinPublic = JwtKey.LoadAsymmetricKeyPublic("Keys/letmein.pub");
 
 			string token = JsonWebToken.Encode(testData, letmeinPrivate, EJwtAlgorithm.RS256);
