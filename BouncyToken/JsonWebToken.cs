@@ -16,6 +16,9 @@ namespace BouncyToken
 			{ EJwtAlgorithm.HS256, new HmacSha(EJwtAlgorithm.HS256) },
 			{ EJwtAlgorithm.HS384, new HmacSha(EJwtAlgorithm.HS384) },
 			{ EJwtAlgorithm.HS512, new HmacSha(EJwtAlgorithm.HS512) },
+			{ EJwtAlgorithm.RS256, new RsaSha(EJwtAlgorithm.RS256) },
+			{ EJwtAlgorithm.RS384, new RsaSha(EJwtAlgorithm.RS384) },
+			{ EJwtAlgorithm.RS512, new RsaSha(EJwtAlgorithm.RS512) },
 		};
 
 		public static string Decode(string token, JwtKey key, bool verify = true)
@@ -58,12 +61,12 @@ namespace BouncyToken
 			return true;
 		}
 
-		public static string Encode(object payload, JwtKey key, EJwtAlgorithm algorithm = EJwtAlgorithm.HS256, string secret = null, IDictionary<string, object> extraHeaders = null)
+		public static string Encode(object payload, JwtKey key, EJwtAlgorithm algorithm = EJwtAlgorithm.HS256, IDictionary<string, object> extraHeaders = null)
 		{
 			string[] tokenParts = new string[3];
 			Dictionary<string, object> header = extraHeaders == null ? new Dictionary<string, object>() : new Dictionary<string, object>(extraHeaders);
 			header.Add("typ", "JWT");
-			header.Add("alg", "HS256");
+			header.Add("alg", algorithm.ToString());
 
 			tokenParts[0] = Helpers.Base64UrlEncode(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(header)));
 			tokenParts[1] = Helpers.Base64UrlEncode(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload)));

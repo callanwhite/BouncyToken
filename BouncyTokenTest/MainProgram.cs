@@ -15,10 +15,15 @@ namespace BouncyTokenTest
 		{
 			Console.WriteLine("BouncyTest");
 
+			Console.WriteLine(System.IO.File.Exists("Keys/letmein.pem"));
+
 			JwtKey key = JwtKey.LoadSymmetricKey(System.Text.Encoding.UTF8.GetBytes("supersecret"));
-			string token = JsonWebToken.Encode(testData, key);
+			JwtKey letmeinPrivate = JwtKey.LoadAsymmetricKeyPrivate("Keys/letmein.pem", "letmein");
+			JwtKey letmeinPublic = JwtKey.LoadAsymmetricKeyPublic("Keys/letmein.pub");
+
+			string token = JsonWebToken.Encode(testData, letmeinPrivate, EJwtAlgorithm.RS256);
 			Console.WriteLine(token);
-			JsonWebToken.Decode(token, key, true);
+			JsonWebToken.Decode(token, letmeinPublic, true);
 			Console.ReadLine();
 		}
 	}
