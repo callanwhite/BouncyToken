@@ -1,6 +1,7 @@
 ﻿using System;
 using BouncyToken;
 using System.Collections.Generic;
+using System.IO;
 
 namespace BouncyTokenTest
 {
@@ -17,9 +18,9 @@ namespace BouncyTokenTest
 
 			Console.WriteLine(System.IO.File.Exists("Keys/letmein.pem"));
 
-			JwtKey key = JwtKey.LoadSymmetricKey(System.Text.Encoding.UTF8.GetBytes("supersecret"));
-			JwtKey letmeinPrivate = JwtKey.LoadAsymmetricKeyPrivate("Keys/letmein.priv", "letmein");
-			JwtKey letmeinPublic = JwtKey.LoadAsymmetricKeyPublic("Keys/letmein.pub");
+			JwtKey key = JwtKey.LoadKey(System.Text.Encoding.UTF8.GetBytes("supersecret"), EJwtAlgorithm.HS256);
+			JwtKey letmeinPrivate = JwtKey.LoadKey(File.ReadAllBytes("Keys/letmein.priv"), EJwtAlgorithm.RS256, "letmein", true);
+			JwtKey letmeinPublic = JwtKey.LoadKey(File.ReadAllBytes("Keys/letmein.pub"), EJwtAlgorithm.RS256);
 
 			string token = JsonWebToken.Encode(testData, letmeinPrivate, EJwtAlgorithm.RS256);
 			Console.WriteLine(token);

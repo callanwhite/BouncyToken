@@ -2,6 +2,7 @@
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
+using System;
 using System.IO;
 
 namespace BouncyToken
@@ -16,40 +17,49 @@ namespace BouncyToken
 			this.key = key;
 		}
 
-		public static JwtKey LoadSymmetricKey(byte[] keyBytes)
+		public static JwtKey LoadKey(byte[] keyBytes, EJwtAlgorithm algorithm, string secret = null, bool isPrivate = false)
+		{
+			switch (algorithm)
+			{
+				case EJwtAlgorithm.HS256:
+				case EJwtAlgorithm.HS384:
+				case EJwtAlgorithm.HS512:
+					return LoadSymmetricKey(keyBytes);
+				case EJwtAlgorithm.RS256:
+				case EJwtAlgorithm.RS384:
+				case EJwtAlgorithm.RS512:
+					return LoadPKCS8Key(keyBytes, secret, isPrivate);
+				default:
+					throw new Exception("Invalid key");
+			}
+		}
+
+		static JwtKey LoadSymmetricKey(byte[] keyBytes)
 		{
 			ICipherParameters key = new KeyParameter(keyBytes);
 			return new JwtKey(key);
 		}
 
-		public static JwtKey LoadAsymmetricKeyPrivate(byte[] keyBytes, string secret = null)
+		static JwtKey LoadPKCS8Key(byte[] keyBytes, string secret = null, bool isPrivate = false)
 		{
 			MemoryStream memoryStream = new MemoryStream(keyBytes);
 			StreamReader streamReader = new StreamReader(memoryStream);
-			PemReader pemReader = secret == null ? new PemReader(streamReader) : new PemReader(streamReader, new Password(secret));
-			AsymmetricCipherKeyPair key = (AsymmetricCipherKeyPair)pemReader.ReadObject();
+			bool isPrivateWithSecret = secret != null && isPrivate;
+			PemReader pemReader = isPrivateWithSecret? new PemReader(streamReader, new Password(secret)) : new PemReader(streamReader);
 
-			return new JwtKey(key.Private);
-		}
+			ICipherParameters key;
 
-		public static JwtKey LoadAsymmetricKeyPrivate(string keyPath, string secret = null)
-		{
-			return LoadAsymmetricKeyPrivate(File.ReadAllBytes(keyPath), secret);
-		}
-
-		public static JwtKey LoadAsymmetricKeyPublic(byte[] keyBytes)
-		{
-			MemoryStream memoryStream = new MemoryStream(keyBytes);
-			StreamReader streamReader = new StreamReader(memoryStream);
-			PemReader pemReader = new PemReader(streamReader);
-			AsymmetricKeyParameter key = (AsymmetricKeyParameter)pemReader.ReadObject();
+			if (isPrivate)
+			{
+				AsymmetricCipherKeyPair keyPair = (AsymmetricCipherKeyPair)pemReader.ReadObject();
+				key = keyPair.Private;
+			}
+			else
+			{
+				key = (AsymmetricKeyParameter)pemReader.ReadObject();
+			}
 
 			return new JwtKey(key);
-		}
-
-		public static JwtKey LoadAsymmetricKeyPublic(string keyPath)
-		{
-			return LoadAsymmetricKeyPublic(File.ReadAllBytes(keyPath));
 		}
 	}
 }
