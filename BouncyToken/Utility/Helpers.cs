@@ -31,7 +31,7 @@ namespace BouncyToken.Utility
 					input += "=";
 					break;
 				default:
-					throw new Exception("Invalid base64 string");
+					throw new InvalidTokenException(ETokenError.Malformed);
 			}
 			Console.WriteLine(input);
 			return Convert.FromBase64String(input);

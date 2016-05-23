@@ -38,6 +38,7 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\InvalidTokenException.cs" />
     <Compile Include="Jwt\EJwtAlgorithm.cs" />
     <Compile Include="JsonWebToken.cs" />
     <Compile Include="Jwt\HmacSha.cs" />

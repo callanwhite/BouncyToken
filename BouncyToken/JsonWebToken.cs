@@ -26,7 +26,7 @@ namespace BouncyToken
 			string[] tokenParts = token.Split('.');
 			if (tokenParts.Length != 3)
 			{
-				throw new ArgumentException("Invalid Json Web Token");
+				throw new InvalidTokenException(ETokenError.Malformed);
 			}
 
 			string header = Encoding.UTF8.GetString(Helpers.Base64UrlDecode(tokenParts[0]));
