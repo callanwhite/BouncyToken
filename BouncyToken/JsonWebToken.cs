@@ -29,12 +29,12 @@ namespace BouncyToken
 				throw new InvalidTokenException(ETokenError.Malformed);
 			}
 
-			string header = Encoding.UTF8.GetString(Helpers.Base64UrlDecode(tokenParts[0]));
 			string payload = Encoding.UTF8.GetString(Helpers.Base64UrlDecode(tokenParts[1]));
-			Console.WriteLine(header + "::");
 			Console.WriteLine(payload + "::");
 			if (verify)
 			{
+				string header = Encoding.UTF8.GetString(Helpers.Base64UrlDecode(tokenParts[0]));
+				Console.WriteLine(header + "::");
 				Dictionary<string, object> headerJson = JsonSerializer.Deserialize<Dictionary<string, object>>(header);	
 				EJwtAlgorithm algorithm = (EJwtAlgorithm)Enum.Parse(typeof(EJwtAlgorithm), headerJson["alg"] as string);
 				Console.WriteLine(tokenParts[2]);
@@ -44,6 +44,10 @@ namespace BouncyToken
 
 				bool valid = hashAlgorithms[algorithm].Verify(signature, toVerify, key);
 				Console.WriteLine(valid);
+				if (!valid)
+				{
+					throw new InvalidTokenException(ETokenError.VerificationFailed);
+				}
 			}
 
 
@@ -54,11 +58,6 @@ namespace BouncyToken
 		{
 			string payloadJson = Decode(token, key, verify);
 			return JsonSerializer.Deserialize<T>(payloadJson);
-		}
-
-		public static bool Verify(string token)
-		{
-			return true;
 		}
 
 		public static string Encode(object payload, JwtKey key, EJwtAlgorithm algorithm = EJwtAlgorithm.HS256, IDictionary<string, object> extraHeaders = null)
