@@ -9,13 +9,12 @@ namespace BouncyToken
 {
 	public class JwtKey
 	{
-		ICipherParameters key = null;
-		public ICipherParameters Key { get { return key; } }
+		//ICipherParameters key = null;
+		//public ICipherParameters Key { get { return key; } }
 
-		public JwtKey(ICipherParameters key)
-		{
-			this.key = key;
-		}
+		public ICipherParameters PrivateKey { get; private set; }
+		public ICipherParameters PublicKey { get; private set; }
+		
 
 		public static JwtKey LoadKey(byte[] keyBytes, EJwtAlgorithm algorithm, string secret = null, bool isPrivate = false)
 		{
@@ -37,7 +36,11 @@ namespace BouncyToken
 		static JwtKey LoadSymmetricKey(byte[] keyBytes)
 		{
 			ICipherParameters key = new KeyParameter(keyBytes);
-			return new JwtKey(key);
+			return new JwtKey
+			{
+				PrivateKey = key,
+				PublicKey = key,
+			};
 		}
 
 		static JwtKey LoadPKCS8Key(byte[] keyBytes, string secret = null, bool isPrivate = false)
@@ -47,19 +50,26 @@ namespace BouncyToken
 			bool isPrivateWithSecret = secret != null && isPrivate;
 			PemReader pemReader = isPrivateWithSecret? new PemReader(streamReader, new Password(secret)) : new PemReader(streamReader);
 
-			ICipherParameters key;
-
+			//ICipherParameters key;
+			JwtKey key = null;
 			if (isPrivate)
 			{
 				AsymmetricCipherKeyPair keyPair = (AsymmetricCipherKeyPair)pemReader.ReadObject();
-				key = keyPair.Private;
+				key = new JwtKey
+				{
+					PrivateKey = keyPair.Private,
+					PublicKey = keyPair.Public,
+				};
 			}
 			else
 			{
-				key = (AsymmetricKeyParameter)pemReader.ReadObject();
+				key = new JwtKey
+				{
+					PublicKey = (AsymmetricKeyParameter)pemReader.ReadObject(),
+				};
 			}
 
-			return new JwtKey(key);
+			return key;
 		}
 	}
 }

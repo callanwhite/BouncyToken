@@ -21,6 +21,19 @@ namespace BouncyToken
 			{ EJwtAlgorithm.RS512, new RsaSha(EJwtAlgorithm.RS512) },
 		};
 
+		public static bool Verify(string token, JwtKey key)
+		{
+			try
+			{
+				Decode(token, key, true);
+				return true;
+			}
+			catch (InvalidTokenException e)
+			{
+				return false;
+			}
+		}
+
 		public static string Decode(string token, JwtKey key, bool verify = true)
 		{
 			string[] tokenParts = token.Split('.');

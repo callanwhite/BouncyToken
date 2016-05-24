@@ -31,7 +31,7 @@ namespace BouncyToken
 		public string Sign(byte[] input, JwtKey key)
 		{
 			ISigner signer = SignerUtilities.GetSigner(method);
-			signer.Init(true, key.Key);
+			signer.Init(true, key.PrivateKey);
 
 			signer.BlockUpdate(input, 0, input.Length);
 			byte[] signedBytes = signer.GenerateSignature();
@@ -41,7 +41,7 @@ namespace BouncyToken
 		public bool Verify(byte[] signature, byte[] input, JwtKey key)
 		{
 			ISigner signer = SignerUtilities.GetSigner(method);
-			signer.Init(false, key.Key);
+			signer.Init(false, key.PublicKey);
 
 			signer.BlockUpdate(input, 0, input.Length);
 

@@ -29,7 +29,7 @@ namespace BouncyToken
 
 		public string Sign(byte[] input, JwtKey key)
 		{
-			byte[] signedBytes = MacUtilities.CalculateMac(method, key.Key, input);
+			byte[] signedBytes = MacUtilities.CalculateMac(method, key.PrivateKey, input);
 
 			return Helpers.Base64UrlEncode(signedBytes);
 		}
