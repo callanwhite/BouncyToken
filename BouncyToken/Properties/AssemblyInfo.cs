@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("BouncyToken")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Thin wrapper around BouncyCastle cryptographic library that implements the Json Web Token spec.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Callan White")]
 [assembly: AssemblyProduct("BouncyToken")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
