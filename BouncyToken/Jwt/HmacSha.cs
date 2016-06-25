@@ -36,8 +36,6 @@ namespace BouncyToken
 
 		public bool Verify(byte[] signature, byte[] input, JwtKey key)
 		{
-			System.Console.WriteLine("@" + Helpers.Base64UrlEncode(signature));
-			System.Console.WriteLine("@" + Sign(input, key));
 			return Helpers.Base64UrlEncode(signature).Equals(Sign(input, key));
 		}
 	}

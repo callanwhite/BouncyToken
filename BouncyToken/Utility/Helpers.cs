@@ -33,7 +33,6 @@ namespace BouncyToken.Utility
 				default:
 					throw new InvalidTokenException(ETokenError.Malformed);
 			}
-			Console.WriteLine(input);
 			return Convert.FromBase64String(input);
 		}
 

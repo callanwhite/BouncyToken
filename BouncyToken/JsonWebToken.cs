@@ -43,20 +43,15 @@ namespace BouncyToken
 			}
 
 			string payload = Encoding.UTF8.GetString(Helpers.Base64UrlDecode(tokenParts[1]));
-			Console.WriteLine(payload + "::");
 			if (verify)
 			{
 				string header = Encoding.UTF8.GetString(Helpers.Base64UrlDecode(tokenParts[0]));
-				Console.WriteLine(header + "::");
 				Dictionary<string, object> headerJson = JsonSerializer.Deserialize<Dictionary<string, object>>(header);	
 				EJwtAlgorithm algorithm = (EJwtAlgorithm)Enum.Parse(typeof(EJwtAlgorithm), headerJson["alg"] as string);
-				Console.WriteLine(tokenParts[2]);
 				byte[] signature = Helpers.Base64UrlDecode(tokenParts[2]);
-				Console.WriteLine("Sig:" + tokenParts[2]);
 				byte[] toVerify = Encoding.UTF8.GetBytes(tokenParts[0] + "." + tokenParts[1]);
 
 				bool valid = hashAlgorithms[algorithm].Verify(signature, toVerify, key);
-				Console.WriteLine(valid);
 				if (!valid)
 				{
 					throw new InvalidTokenException(ETokenError.VerificationFailed);
@@ -82,9 +77,6 @@ namespace BouncyToken
 
 			tokenParts[0] = Helpers.Base64UrlEncode(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(header)));
 			tokenParts[1] = Helpers.Base64UrlEncode(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload)));
-
-			Console.WriteLine("Header: " + tokenParts[0]);
-			Console.WriteLine("Payload: " + tokenParts[1]);
 
 			byte[] bytesToSign = Encoding.UTF8.GetBytes(tokenParts[0] + "." + tokenParts[1]);
 			tokenParts[2] = hashAlgorithms[algorithm].Sign(bytesToSign, key);
